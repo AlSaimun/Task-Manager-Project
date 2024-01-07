@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %} 
+
+{% if user.is_authenticated %}
+<h1>Home page</h1>
+{% else %}
+<h1>Please Log in or Register</h1>
+{% endif %}
+
+<div style="margin: 550px">
+</div>
+{% endblock content %}
