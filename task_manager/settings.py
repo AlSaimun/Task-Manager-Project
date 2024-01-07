@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     # install apps
     'authentication',
+    'tasks',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

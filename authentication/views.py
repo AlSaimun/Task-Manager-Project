@@ -14,9 +14,6 @@ from .forms import SingUpForm, EmailForOTPForm, NewPasswordForm, OTPForm
 from .utils import generate_otp, EmailUser, format_email
 # Create your views here.
 
-class HomeView(TemplateView):
-    template_name = 'home.html'
-
 class SignUpView(CreateView):
     form_class = SingUpForm
     template_name = 'authentication/signupForm.html'
