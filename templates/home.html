@@ -3,6 +3,12 @@
 
 {% block content %} 
 
+{% if messages %}
+{% for m in messages %}
+    <div {% if m.tags %} class="{{m.tags}}" {% endif %}><small >{{m}}</small></div>
+{% endfor %}
+{% endif %}
+
 {% if user.is_authenticated %}
     {% if tasks %}
     <div class="container mt-5">

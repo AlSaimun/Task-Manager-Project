@@ -58,7 +58,6 @@ class TaskCreateView(LoginRequiredMixin, FormView):
         instance.user = self.request.user # set user for this task
         instance.save()
 
-
         # create instance for images
         images = self.request.FILES.getlist('images')
         print(self.request.FILES)

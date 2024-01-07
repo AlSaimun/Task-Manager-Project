@@ -23,25 +23,9 @@
 
     
     <div class="row">
-
+      {% if task.images.all %}
       <h1>Images</h1>
-      {% comment %} <div class="col-md-4 mb-3">
-        <div class="card text-center">
-          <img src="{% static 'images/nullimage.png' %}" style="width: 147px; height: 147px;" alt="Task Image" class="card-img-top mx-auto mt-3">
-          <div class="card-body">
-            <form method="post" action="{% url 'update-task' task.id %}" enctype="multipart/form-data">
-              {% csrf_token %}
-              <div class="form-group">
-                <label for="imageUpload" class="btn btn-primary btn-sm">
-                  Select Image
-                </label>
-                <input type="file" id="imageUpload" multiple name="image" style="display:none;" class="form-control-file">
-              </div>
-              <button type="submit" class="btn btn-success btn-sm mt-2">Upload</button>
-            </form>
-          </div>
-        </div>
-      </div> {% endcomment %}
+      {% endif %}
 
       {% for image in task.images.all %}
       <div class="col-md-4 mb-3">

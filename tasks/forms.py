@@ -13,4 +13,4 @@ class TaskUpdateForm(forms.ModelForm):
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
     class Meta:
         model = Task
-        fields = ['title', 'description', 'priority', 'due_date', ]
+        fields = ['title', 'description', 'priority', 'due_date', 'is_completed' ]
