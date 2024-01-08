@@ -2,22 +2,13 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-
-
 {% block content %}
-
-{% if messages %}
-{% for m in messages %}
-    <div {% if m.tags %} class="{{m.tags}}" {% endif %}><small >{{m}}</small></div>
-{% endfor %}
-{% endif %}
-
 <div class="container mt-5">
     <div class="card mx-auto" style="width: 30rem;">
         <div class="card-body" style="background-color: #E8E8E8;">
-            <h1 class="card-title text-center">Login</h1>
+            <h1 class="card-title text-center">Create Task</h1>
 
-            <form action="" method="post" novalidate>
+            <form action="" method="post" novalidate enctype="multipart/form-data">
                 {% csrf_token %}
 
                 {% if form.non_field_errors %}
@@ -34,19 +25,17 @@
                         <p class="text-danger">{{ fm.errors|striptags }}</p>
                     </div>
                 {% endfor %}
-
+                <label for="Images">Images: </label>
+                <input type="file" multiple name="images"><br> <br>  
                 <div class="text-center">
-                    <button class="btn btn-primary" type="submit">Submit</button>
+                    <a href="{% url 'task-details' task.pk %}" class="btn btn-danger btn-sm">Cancel</a>
+                    <button class="btn btn-primary btn-sm" type="update">Submit</button>
                 </div>
             </form>
-
-            <div class="text-center mt-3">
-            </small> <a href="{% url 'send-otp-to-email' %}" class="text-danger"> *forgot password?</a> <br>
-            <small class="fw-bold">You have no account?</small> <a href="{% url 'signup' %}">SignUp</a>
-            </div>
         </div>
     </div>
 </div>
-<div style="margin: 200px">
+<div style="margin: 100px">
 </div>
 {% endblock %}
+

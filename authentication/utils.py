@@ -5,6 +5,19 @@ from django.utils.html import format_html
 import random
 import string
 from django.conf import settings 
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+
+def get_tokens_for_user(user):
+        '''get jwt token'''
+        refresh = RefreshToken.for_user(user)
+
+        return {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+        }
+
 
 def generate_otp(otp_size=6): 
         ''' generates 6 digits otp for password reset '''
@@ -44,7 +57,7 @@ def format_email(user, **kwargs):
                 Task Manager Team. <br> 
                                         
                 ''', user.username, otp)
-                print(user.username, user.email)
+                # print(user.username, user.email)
                 data = {
                     'subject' : 'Reset Your Password in Task Manager!',
                     'body' : email_body, 
