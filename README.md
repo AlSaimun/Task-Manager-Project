@@ -6,6 +6,7 @@ A Task Manager system User create, update, delete task. Implemented Authentiacti
 - **User Authentication:** User can login, Signup, recover user account by reset password.
 - **Task Management:** User can Create, Update, delete Task. 
 - **Upload Multiple image:** User can Upload Multiple image when creat or update task.
+- **Search by Title:** User can search task by title.
 
 ## Technologies Used
 `Python 3.12.1` `Django 4.2.6` `Django-Rest-Framework` `HTML` `CSS` ` Bootstrap5` </br>
@@ -83,5 +84,8 @@ http://127.0.0.1:8000/tasks/api/task/1/
 http://127.0.0.1:8000/jwt/login/ 
 ```
 NB. Use jwt login for get acess token else you can't access to see data. Also tasks filter by user
+NB. For see details of a task click over the task card
+
+If any confusion feel free to ask me, Thanks for your time.
 
 
