@@ -28,13 +28,14 @@
               <a class="nav-link active fw-bold text-white" aria-current="page" href="{% url 'home' %}">Home</a>
             </li>
             <li class="nav-item">
-              {% comment %} <a class="nav-link active fw-bold text-dark" aria-current="page" href="{% url 'book_management:all-books' %}">Tasks</a> {% endcomment %}
+              <a class="nav-link active fw-bold text-white" aria-current="page" href="{% url 'create-task' %}">Create Task</a>
+            </li> 
             {% endif %}
           </ul>
           {% if user.is_authenticated %}
-          {% comment %} <form class="d-flex ms-auto" method="get" action="{% url '' %}"> {% endcomment %}
+          <form class="d-flex ms-auto" method="get" action="{% url 'task-search' %}">
             {% csrf_token %}
-            <input class="form-control me-2 search-input" type="search" name = "search_query" placeholder="Search Book" aria-label="Search" required>
+            <input class="form-control me-2 search-input" type="search" name = "title" placeholder="Search Book" aria-label="Search" required>
             <button class="btn btn-success txt-white mx-1 btn-sm" type="submit">Search</button>
           </form>
           {% endif %}
@@ -61,12 +62,12 @@
       <div class="container">
         <section class="footer-bottom border-top row">
           <div class="col-md-2 ">
-            <p class="text-white"> &copy 2019 Company name </p>
+            <p class="text-white"> &copy 2024 projectsaimun </p>
           </div>
           <div class="col-md-8 text-md-center">
-            <span  class="px-2">info@pixsellz.io</span>
-            <span  class="px-2">+879-332-9375</span>
-            <span  class="px-2">Street name 123, Avanue abc</span>
+            <span  class="px-2">projectsaimun@gmail.com</span>
+            <span  class="px-2">+880 1836996498</span>
+            <span  class="px-2">Companigonj 3920</span>
           </div>
         </section>
       </div>   

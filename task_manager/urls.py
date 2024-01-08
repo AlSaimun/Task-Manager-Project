@@ -20,12 +20,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 # local import
-from authentication.views import HomeView
+from tasks.views import HomeView
+from authentication.views import LoginAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomeView.as_view(), name='home'),
     path('auth/', include('authentication.urls')),
+    path('tasks/', include('tasks.urls')),
+    path('jwt/login/', LoginAPI.as_view()),
 ] + static(settings.MEDIA_URL , document_root = settings.MEDIA_ROOT)
 
 
