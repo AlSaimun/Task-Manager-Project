@@ -53,6 +53,7 @@ A Task Manager system User create, update, delete task. Implemented Authentiacti
 6. **Run migrations:**
 
     ```bash
+    python manage.py makemigrations
     python manage.py migrate
     ```
 
