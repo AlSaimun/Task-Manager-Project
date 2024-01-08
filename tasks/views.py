@@ -237,8 +237,9 @@ class TaskAPIView(APIView):
     def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.validated_data['user'] = request.user
             instance = serializer.save()
+            instance.user = request.user
+            instance.save()
 
             images = request.FILES.getlist('images')
             for image in images:
