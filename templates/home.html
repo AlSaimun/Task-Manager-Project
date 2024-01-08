@@ -10,10 +10,10 @@
 {% endif %}
 
 {% if user.is_authenticated %}
-    {% if tasks %}
-    <div class="container mt-5">
-        <h1 margin style=" text-align: center;">Task List</h1>
-        <div class="row">
+{% if tasks %}
+<div class="container ">
+    <h1 margin style=" text-align: center;">Task List</h1>
+    <div class="row">
             
             <div class="d-flex justify-content-end align-items-center mb-4 pt-2 pb-3">
                 <p class="small mb-0 me-2 text-muted">Filter</p>

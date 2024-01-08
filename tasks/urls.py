@@ -13,4 +13,8 @@ urlpatterns = [
     path('delete-image/<int:pk>/', ImageDeleteView.as_view(), name='delete-image'),
     path('delete-image/<int:pk>/', ImageDeleteView.as_view(), name='delete-image-conf'),
     path('search/', TaskSearchView.as_view(), name='task-search'),
-] 
+
+
+    path('api/task/<int:pk>/', TaskAPIView.as_view()),
+    path('api/task/', TaskAPIView.as_view(), name='task-api'),
+]

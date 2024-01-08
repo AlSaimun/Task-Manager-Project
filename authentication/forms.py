@@ -57,6 +57,6 @@ class NewPasswordForm(forms.Form):
     def clean(self):
         new_password = self.cleaned_data.get('new_password')
         confirm_password = self.cleaned_data.get('confirm_password')
-        print(new_password, confirm_password)
+        # print(new_password, confirm_password)
         if new_password and confirm_password and new_password != confirm_password: # check new password and confirm password same
             raise forms.ValidationError("new password and confirm password are not same!")

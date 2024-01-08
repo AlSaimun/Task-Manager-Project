@@ -4,13 +4,21 @@ from django.views.generic.edit import FormView
 from django.views.generic import View, ListView, DeleteView, DetailView
 from django.contrib import messages
 from django.urls import reverse_lazy
+from rest_framework.views import APIView
+from rest_framework.response import Response 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from django.contrib.auth import authenticate
+
 
 # local import
 from .models import Image, Task
 from .forms import TaskCreationForm, TaskUpdateForm
+from .serializer import TaskSerializer
 
 # Create your views here.
 
+######################### Template View ############################
 
 class HomeView(ListView):
     '''Home Page and Show All Task'''
@@ -20,10 +28,13 @@ class HomeView(ListView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            print(self.request.user)
+            # print(self.request.user)
             return Task.objects.filter(user=self.request.user).order_by('-priority')
         return None
-    
+
+
+
+
 class FilterView(LoginRequiredMixin, ListView):
     '''Filter by category like completed, incompleted etc'''
     model = Task
@@ -46,6 +57,9 @@ class FilterView(LoginRequiredMixin, ListView):
             return None
 
 
+
+
+
 class TaskCreateView(LoginRequiredMixin, FormView):
     '''Create Task and must be a Authenticate user'''
 
@@ -60,7 +74,7 @@ class TaskCreateView(LoginRequiredMixin, FormView):
 
         # create instance for images
         images = self.request.FILES.getlist('images')
-        print(self.request.FILES)
+        # print(self.request.FILES)
         for image in images:
             Image.objects.create(task=instance, image=image)
 
@@ -76,6 +90,10 @@ class TaskCreateView(LoginRequiredMixin, FormView):
         return redirect('login')
     
 
+
+
+
+
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     '''Delete a Task'''
     model = Task
@@ -90,9 +108,16 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
             messages.warning(self.request, "Task doesn't exist!")
             return None
         
+    def handle_no_permission(self):
+        messages.warning(self.request, 'You need to be logged in.')
+        return redirect('login')    
+
+
+
+
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
-    '''Task Detail view'''
+    '''Single Task Detail view'''
     model = Task
     template_name = 'tasks/task_detail_page.html'
     context_object_name = 'task'
@@ -116,7 +141,10 @@ class TaskUpdateView(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task_id = self.kwargs.get('id')
-        context['task'] = Task.objects.get(pk=task_id, user=self.request.user)
+        try:
+            context['task'] = Task.objects.get(pk=task_id, user=self.request.user)
+        except:
+            pass
         return context
     
     def form_valid(self, form):
@@ -142,7 +170,9 @@ class TaskUpdateView(LoginRequiredMixin, FormView):
     def handle_no_permission(self):
         messages.warning(self.request, 'You need to be logged in.')
         return redirect('login')
-    
+
+
+
 
 class ImageDeleteView(LoginRequiredMixin, DeleteView):
     model = Image
@@ -154,13 +184,20 @@ class ImageDeleteView(LoginRequiredMixin, DeleteView):
     
     def get(self, request, *args, **kwargs):
         image = self.get_object()
-        if request.user == image.task.user:
+        if request.user == image.task.user: # check here user is valid for deleting image
             return super().get(request, *args, **kwargs)
         else:
             return redirect('home') 
         
+    def handle_no_permission(self):
+        messages.warning(self.request, 'You need to be logged in.')
+        return redirect('login')    
+
+
+
 
 class TaskSearchView(LoginRequiredMixin, View):
+    '''Search by title of the task'''
     template_name = 'home.html'
 
     def get(self, request, *args, **kwargs):
@@ -171,3 +208,80 @@ class TaskSearchView(LoginRequiredMixin, View):
             return render(request, self.template_name, context)
         else:
             redirect('home')
+
+    def handle_no_permission(self):
+        messages.warning(self.request, 'You need to be logged in.')
+        return redirect('login')
+
+
+
+########################### REST API Views ###########################
+    
+
+class TaskAPIView(APIView):
+    '''Create, Update, Retrive, Delete Task'''
+    permission_classes = [IsAuthenticated]
+    def get(self, request, pk=None): 
+        if pk:
+            try:
+                tasks = Task.objects.get(user = request.user, pk = pk)
+                serializer = TaskSerializer(instance=tasks)
+                return Response({'status': 'success', 'data': serializer.data}, status=status.HTTP_200_OK)
+            except Task.DoesNotExist:
+                return Response({'status': 'error', 'data': 'Task do not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        tasks = Task.objects.filter(user = request.user)
+        serializer = TaskSerializer(instance=tasks, many = True)
+        return Response({'status': 'success', 'data': serializer.data}, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = TaskSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.validated_data['user'] = request.user
+            instance = serializer.save()
+
+            images = request.FILES.getlist('images')
+            for image in images:
+                Image.objects.create(task=instance, image = image)
+            return Response({'status': 'success', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'error', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk):
+        try: 
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({'status': 'error', 'data': 'Task does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = TaskSerializer(task, data=request.data, partial = True)
+        if serializer.is_valid():
+            instance = serializer.save()
+
+            images = request.FILES.getlist('images')
+            for image in images:
+                Image.objects.create(task=instance, image = image)
+            return Response({'status': 'success', 'data': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'status': 'error', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, pk):
+        try: 
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({'status': 'error', 'data': 'Task does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = TaskSerializer(task, data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+
+            images = request.FILES.getlist('images')
+            for image in images:
+                Image.objects.create(task=instance, image = image)
+            return Response({'status': 'success', 'data': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'status': 'error', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            task = Task.objects.get(user = request.user, pk = pk).delete()
+            return Response({'status': 'success', 'data': 'Task Deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except Task.DoesNotExist:
+            return Response({'status': 'error', 'data': 'task does not exist'}, status=status.HTTP_204_NO_CONTENT)
+            

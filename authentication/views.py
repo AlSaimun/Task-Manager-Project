@@ -6,35 +6,57 @@ from django.views.generic import TemplateView, View
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models  import User
 from django.contrib import messages 
-
-
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+from rest_framework.response import Response 
+from rest_framework import status
 
 # local import
 from .forms import SingUpForm, EmailForOTPForm, NewPasswordForm, OTPForm
-from .utils import generate_otp, EmailUser, format_email
+from .utils import generate_otp, EmailUser, format_email, get_tokens_for_user
 # Create your views here.
 
 class SignUpView(CreateView):
+    '''User sign up it takes username, first name, last name, password and confirm password'''
     form_class = SingUpForm
     template_name = 'authentication/signupForm.html'
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('login')
 
+
+    def dispatch(self, request, *args, **kwargs):
+        '''if user already logged in'''
+        if self.request.user.is_authenticated:
+            messages.warning(self.request, 'You already logged in.')
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+    
     def form_valid(self, form):
+        messages.success(self.request, 'You successfully create account')
         response = super().form_valid(form)
-        login(self.request, self.request.user)
         return response
     
+
+
 class LoginView(FormView):
+    '''Here user can log in by username and password'''
     form_class = AuthenticationForm
     template_name = 'authentication/loginForm.html'
     success_url = reverse_lazy('home')
 
+    def dispatch(self, request, *args, **kwargs):
+        '''if user already logged in'''
+        if self.request.user.is_authenticated:
+            messages.warning(self.request, 'You already logged in.')
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+    
     def form_valid(self, form):
         login(self.request, form.get_user())
         return super().form_valid(form)
     
 
 class LogoutView(View):
+    '''User log out view'''
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect(reverse_lazy('login'))
@@ -45,6 +67,7 @@ class LogoutView(View):
 
 
 class ForgotPasswordView(FormView):
+    '''Here validate user and send OTP by email if user forgot password'''
     template_name = 'authentication/send_otp_email.html'
     form_class = EmailForOTPForm
 
@@ -62,7 +85,7 @@ class ForgotPasswordView(FormView):
             email_body = format_email(user, otp=otp, send_otp=True) # use mehtod overloading
             EmailUser.send_email(email_body)
         except Exception as e:
-            print("***Exception ",e)
+            # print("***Exception ",e)
             messages.warning(self.request, "OTP didn't send, some info may be missing")
             return redirect('login')
 
@@ -72,6 +95,7 @@ class ForgotPasswordView(FormView):
 
 
 class ValidateOTPView(FormView):
+    '''OTP validation'''
     template_name = 'authentication/otp_form.html'
     form_class = OTPForm
 
@@ -87,6 +111,7 @@ class ValidateOTPView(FormView):
 
 
 class SetNewPasswordView(FormView):
+    '''Set new password'''
     template_name = 'authentication/set_new_password.html'
     form_class = NewPasswordForm
     success_url = reverse_lazy('login')
@@ -105,3 +130,22 @@ class SetNewPasswordView(FormView):
         self.request.session.flush()
         messages.success(self.request, 'Successfully changed your password, now you can login')
         return super().form_valid(form)
+    
+
+
+####################### Get JWT token ##############################
+
+'''Jwt token for testing postman'''
+
+class LoginAPI(APIView): 
+        ''' Authenticates an user with either username and password, and passes token '''
+        def post(self, request):   
+                username= request.data.get('username', None)
+                password = request.data.get('password', None)
+
+                user = authenticate(request, username=username,  password=password)
+                if user is not None: 
+                        token = get_tokens_for_user(user)
+                        return Response({'status' : 'success', 'token' : token}, status=status.HTTP_200_OK)
+                return Response({'status' : 'error', 'data' : {'non_field_errors' : ['Username or password is incorrect']}}, status=status.HTTP_404_NOT_FOUND)
+   
