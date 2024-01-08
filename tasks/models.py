@@ -10,7 +10,7 @@ PRIORITY_CHOICES = (
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank = True, null = True)
     description = models.TextField(max_length=255, null= True, blank = True)
     priority = models.CharField(max_length = 10, choices = PRIORITY_CHOICES)
     due_date = models.DateField()
